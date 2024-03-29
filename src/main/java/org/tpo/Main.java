@@ -20,7 +20,7 @@ public class Main {
                     Priority.values()[randInt]
             );
             scheduler.put(task);
-            Thread.sleep(random.nextInt(2000));
+            Thread.sleep(200);
         }
     }
 
@@ -29,7 +29,10 @@ public class Main {
             long counter = 0;
             long limit = random.nextInt(1000000) + 100000000;
             for (long i = 0; i < limit; i++) {
-                counter += i;
+                if (Thread.currentThread().isInterrupted()) {
+                   return;
+                }
+                counter += random.nextInt(123) + i;
             }
             LOGGER.info("Result: " + counter);
         };

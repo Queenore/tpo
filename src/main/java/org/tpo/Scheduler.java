@@ -9,7 +9,6 @@ import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 
 public class Scheduler {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Scheduler.class);
     private static final Comparator<ExtendedTask> COMPARATOR = Comparator.comparing(ExtendedTask::getPriority);
 
     private final PriorityBlockingQueue<ExtendedTask> readyQueue = new PriorityBlockingQueue<>(2, COMPARATOR);
@@ -34,5 +33,4 @@ public class Scheduler {
     public void put(ExtendedTask task) {
         suspendedQueue.put(task);
     }
-
 }

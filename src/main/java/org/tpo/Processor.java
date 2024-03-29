@@ -11,8 +11,10 @@ import java.util.concurrent.SynchronousQueue;
 
 public class Processor extends Thread {
     private static final Logger LOGGER = LoggerFactory.getLogger(Processor.class);
+
     private final ExecutorService executor;
     private final SynchronousQueue<ExtendedTask> runningQueue;
+
     private TaskInProcess taskInProcess;
 
     public Processor(SynchronousQueue<ExtendedTask> runningQueue) {
@@ -73,10 +75,6 @@ public class Processor extends Thread {
 
         public ExtendedTask getTask() {
             return task;
-        }
-
-        public Future<?> getFuture() {
-            return future;
         }
 
         public void cancel() {
