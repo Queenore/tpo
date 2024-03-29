@@ -9,17 +9,21 @@ import java.util.Random;
 
 public class Main {
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
+
     public static void main(String[] args) throws InterruptedException {
         Scheduler scheduler = new Scheduler();
 
         Random random = new Random();
         while (true) {
             int randInt = random.nextInt(4);
-            ExtendedTask task = new ExtendedTask(
-                    getTask(random),
-                    Priority.values()[randInt]
+
+            scheduler.put(
+                    new ExtendedTask(
+                            getTask(random),
+                            Priority.values()[randInt]
+                    )
             );
-            scheduler.put(task);
+
             Thread.sleep(200);
         }
     }
@@ -30,7 +34,7 @@ public class Main {
             long limit = random.nextInt(1000000) + 100000000;
             for (long i = 0; i < limit; i++) {
                 if (Thread.currentThread().isInterrupted()) {
-                   return;
+                    return;
                 }
                 counter += random.nextInt(123) + i;
             }
