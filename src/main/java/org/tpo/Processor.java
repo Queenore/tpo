@@ -40,8 +40,7 @@ public class Processor extends Thread {
 
 
     private void putTask(ExtendedTask task) {
-        LOGGER.info("Executing: priority=" + task.getPriority().name()
-        + ", id=" + task.getId());
+        LOGGER.info("Executing: priority=" + task.getPriority().name()  + ", id=" + task.getId());
         taskInProcess = new TaskInProcess(
                 task,
                 executor.submit(task)
