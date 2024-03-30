@@ -73,8 +73,9 @@ public class Processor extends Thread {
         stateChanger.putInReadyState(prevTask);
     }
 
-    private synchronized void putTask(Task task) {
+    private void putTask(Task task) {
         LOGGER.info("Executing: priority=" + task.getPriority().name() + ", id=" + task.getId());
+
         taskInProcess = new TaskInProcess(
                 task,
                 executor.submit(task)

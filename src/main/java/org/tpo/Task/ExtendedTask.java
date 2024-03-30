@@ -1,21 +1,17 @@
 package org.tpo.Task;
 
-import org.tpo.Stateful.ToWaitStateChanger;
-
-import java.util.Random;
+import org.tpo.Stateful.WaitStateChanger;
 
 public class ExtendedTask extends Task {
-    static final Random RANDOM = new Random();
-
-    private final ToWaitStateChanger stateChanger;
-    private long result;
+    private final WaitStateChanger stateChanger;
     private final long limit = RANDOM.nextInt(1000) + 50000;
-    private int snapshot;
+    private long result;
+    private int index;
     private boolean isWaiting = false;
     private long interruptTime;
     private long waitingTime;
 
-    public ExtendedTask(Priority priority, int id, ToWaitStateChanger stateChanger) {
+    public ExtendedTask(Priority priority, int id, WaitStateChanger stateChanger) {
         super(priority, id);
         setRunnable(getExtendedTask());
         this.stateChanger = stateChanger;
@@ -36,20 +32,21 @@ public class ExtendedTask extends Task {
 
     private Runnable getExtendedTask() {
         return () -> {
-            LOGGER.info("Continue: " + snapshot);
-            for (; snapshot < limit; snapshot++) {
+            LOGGER.info("Continue: " + index);
+            while(index < limit) {
                 if (Thread.currentThread().isInterrupted()) {
                     return;
                 }
                 if (isWaitAction()) {
-                    LOGGER.info("Waiting: " + snapshot);
+                    LOGGER.info("Waiting: " + index);
                     isWaiting = true;
-                    waitingTime = RANDOM.nextInt(2000) + 2000;
+                    waitingTime = getWaitingTime();
                     interruptTime = System.currentTimeMillis();
                     stateChanger.putInWaitState(this);
                     return;
                 }
-                result += snapshot;
+                result += index;
+                index++;
             }
             LOGGER.info("Result: " + result);
         };
@@ -58,5 +55,10 @@ public class ExtendedTask extends Task {
     private static boolean isWaitAction() { // With 0,1% probability.
         int rand = RANDOM.nextInt(1000000);
         return rand > 999990;
+    }
+
+    private static int getWaitingTime() {
+        // From 2000 to 4000 millis.
+        return RANDOM.nextInt(2000) + 2000;
     }
 }
