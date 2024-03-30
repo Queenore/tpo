@@ -9,7 +9,7 @@ public class ExtendedTask extends Task {
 
     private final ToWaitStateChanger stateChanger;
     private long result;
-    private final long limit = RANDOM.nextInt(1000000) + 100000000;
+    private final long limit = RANDOM.nextInt(1000) + 50000;
     private int snapshot;
     private boolean isWaiting = false;
     private long interruptTime;

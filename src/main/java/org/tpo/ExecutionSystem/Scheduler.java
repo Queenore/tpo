@@ -48,7 +48,7 @@ public class Scheduler implements BaseStateChanger {
     }
 
     @Override
-    public void termitate(Task task) {
+    public void terminate(Task task) {
         LOGGER.info("Task done: id=" + task.getId());
     }
 }

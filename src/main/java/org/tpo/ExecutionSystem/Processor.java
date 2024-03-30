@@ -56,7 +56,7 @@ public class Processor extends Thread {
     }
 
     private void terminate(Task nextTask) {
-        stateChanger.termitate(taskInProcess.getTask());
+        stateChanger.terminate(taskInProcess.getTask());
         putTask(nextTask);
     }
 
