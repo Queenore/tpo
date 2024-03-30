@@ -13,13 +13,15 @@ public class Processor extends Thread {
     private static final Logger LOGGER = LoggerFactory.getLogger(Processor.class);
 
     private final ExecutorService executor;
+    private final StateChanger stateChanger;
     private final SynchronousQueue<ExtendedTask> runningQueue;
 
     private TaskInProcess taskInProcess;
 
-    public Processor(SynchronousQueue<ExtendedTask> runningQueue) {
+    public Processor(SynchronousQueue<ExtendedTask> runningQueue, StateChanger stateChanger) {
         this.executor = Executors.newSingleThreadExecutor();
         this.runningQueue = runningQueue;
+        this.stateChanger = stateChanger;
     }
 
     private void displase(ExtendedTask task) {
@@ -30,14 +32,16 @@ public class Processor extends Thread {
         );
 
         ExtendedTask prevTask = taskInProcess.getTask();
-        // TODO: preempt prevTask
+        stateChanger.putInReadyState(prevTask);
 
         taskInProcess.cancel();
         putTask(task);
     }
 
+
     private void putTask(ExtendedTask task) {
-        LOGGER.info("Executing: priority=" + task.getPriority().name());
+        LOGGER.info("Executing: priority=" + task.getPriority().name()
+        + ", id=" + task.getId());
         taskInProcess = new TaskInProcess(
                 task,
                 executor.submit(task)
@@ -53,7 +57,10 @@ public class Processor extends Thread {
                     if (taskInProcess == null || taskInProcess.isDone()) {
                         putTask(nextTask);
                         break;
-                    } else if (taskInProcess.getTask().getPriority().compareTo(nextTask.getPriority()) > 0) {
+                    } else if (
+                            taskInProcess.getTask().getPriority()
+                                    .compareTo(nextTask.getPriority()) > 0
+                    ) {
                         displase(nextTask);
                         break;
                     }
@@ -64,7 +71,7 @@ public class Processor extends Thread {
         }
     }
 
-    private class TaskInProcess {
+    private static class TaskInProcess {
         ExtendedTask task;
         Future<?> future;
 
