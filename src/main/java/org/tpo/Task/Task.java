@@ -3,11 +3,9 @@ package org.tpo.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Random;
 
 public abstract class Task implements Runnable {
     static final Logger LOGGER = LoggerFactory.getLogger(Task.class);
-    static final Random RANDOM = new Random();
 
     private final Priority priority;
     private final int id;

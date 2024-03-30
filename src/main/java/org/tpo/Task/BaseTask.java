@@ -1,6 +1,9 @@
 package org.tpo.Task;
 
+import java.util.Random;
+
 public class BaseTask extends Task {
+    static final Random RANDOM = new Random();
 
     public BaseTask(Priority priority, int id) {
         super(priority, id);

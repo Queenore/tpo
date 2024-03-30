@@ -37,14 +37,13 @@ public class Scheduler implements BaseStateChanger {
 
     @Override
     public void putInWaitState(Task task) {
-        LOGGER.info("Put in wait state: id=" + task.getId());
+//        LOGGER.info("Put in wait state: id=" + task.getId());
         processor.toWaitState();
         waitingQueue.put(task);
     }
 
     @Override
     public void putInReadyState(Task task) {
-        LOGGER.info("Put in ready state: id=" + task.getId());
         readyQueue.put(task);
     }
 

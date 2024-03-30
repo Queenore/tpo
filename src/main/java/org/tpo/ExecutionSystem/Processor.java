@@ -31,10 +31,10 @@ public class Processor extends Thread {
             try {
                 Task nextTask = runningQueue.take();
                 while (true) {
-                    if (taskInProcess == null) {
+                    if (taskInProcess == null || taskInProcess.isCancelled()) {
                         putTask(nextTask);
                         break;
-                    } else if (taskInProcess.isDone() || taskInProcess.isCancelled()) {
+                    } else if (taskInProcess.isDone())  {
                         terminate(nextTask);
                         break;
                     } else if (
@@ -52,9 +52,7 @@ public class Processor extends Thread {
     }
 
     public void toWaitState() {
-        Task prevTask = taskInProcess.getTask();
         taskInProcess.cancel();
-        stateChanger.putInWaitState(prevTask);
     }
 
     private void terminate(Task nextTask) {
@@ -69,13 +67,13 @@ public class Processor extends Thread {
                         + task.getPriority().name()
         );
 
-        Task prevTask = taskInProcess.getTask();
         taskInProcess.cancel();
-        stateChanger.putInReadyState(prevTask);
+        Task prevTask = taskInProcess.getTask();
         putTask(task);
+        stateChanger.putInReadyState(prevTask);
     }
 
-    private void putTask(Task task) {
+    private synchronized void putTask(Task task) {
         LOGGER.info("Executing: priority=" + task.getPriority().name() + ", id=" + task.getId());
         taskInProcess = new TaskInProcess(
                 task,

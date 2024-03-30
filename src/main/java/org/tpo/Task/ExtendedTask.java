@@ -2,7 +2,11 @@ package org.tpo.Task;
 
 import org.tpo.Stateful.ToWaitStateChanger;
 
+import java.util.Random;
+
 public class ExtendedTask extends Task {
+    static final Random RANDOM = new Random();
+
     private final ToWaitStateChanger stateChanger;
     private long result;
     private final long limit = RANDOM.nextInt(1000000) + 100000000;
@@ -32,15 +36,18 @@ public class ExtendedTask extends Task {
 
     private Runnable getExtendedTask() {
         return () -> {
+            LOGGER.info("Continue: " + snapshot);
             for (; snapshot < limit; snapshot++) {
                 if (Thread.currentThread().isInterrupted()) {
                     return;
                 }
                 if (isWaitAction()) {
+                    LOGGER.info("Waiting: " + snapshot);
                     isWaiting = true;
                     waitingTime = RANDOM.nextInt(2000) + 2000;
                     interruptTime = System.currentTimeMillis();
                     stateChanger.putInWaitState(this);
+                    return;
                 }
                 result += snapshot;
             }
