@@ -1,5 +1,6 @@
 package org.tpo;
 
+import org.tpo.ExecutionSystem.Scheduler;
 import org.tpo.Task.BaseTask;
 import org.tpo.Task.ExtendedTask;
 import org.tpo.Task.Priority;
@@ -14,15 +15,15 @@ public class Main {
 
         int id = 1;
         while (true) {
-            int randInt = RANDOM.nextInt(4);
+            Priority priority = Priority.values()[RANDOM.nextInt(4)];
 
             scheduler.put(
                     RANDOM.nextInt(2) > 0
-                            ? new BaseTask(Priority.values()[randInt], id++)
-                            : new ExtendedTask(Priority.values()[randInt], id++)
+                            ? new BaseTask(priority, id++)
+                            : new ExtendedTask(priority, id++, scheduler)
             );
 
-            Thread.sleep(RANDOM.nextInt(1000) + 500);
+            Thread.sleep(RANDOM.nextInt(600) + 400);
         }
     }
 }

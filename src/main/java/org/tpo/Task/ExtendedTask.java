@@ -1,65 +1,55 @@
 package org.tpo.Task;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.tpo.Main;
+import org.tpo.Stateful.ToWaitStateChanger;
 
-import java.util.Random;
+public class ExtendedTask extends Task {
+    private final ToWaitStateChanger stateChanger;
+    private long result;
+    private final long limit = RANDOM.nextInt(1000000) + 100000000;
+    private int snapshot;
+    private boolean isWaiting = false;
+    private long interruptTime;
+    private long waitingTime;
 
-public class ExtendedTask implements Runnable {
-    static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
-    static final Random RANDOM = new Random();
-
-    private Priority priority;
-    private final Runnable runnable;
-    private final int id;
-
-    public ExtendedTask(Priority priority, int id) {
-        this.priority = priority;
-        this.id = id;
-        this.runnable = getExtendedTask();
+    public ExtendedTask(Priority priority, int id, ToWaitStateChanger stateChanger) {
+        super(priority, id);
+        setRunnable(getExtendedTask());
+        this.stateChanger = stateChanger;
     }
 
-    public ExtendedTask(Runnable runnable, Priority priority, int id) {
-        this.priority = priority;
-        this.id = id;
-        this.runnable = runnable;
-    }
+    public boolean isTaskReady() {
+        if (!isWaiting) {
+            return true;
+        }
 
-    public Priority getPriority() {
-        return priority;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    @Override
-    public void run() {
-        runnable.run();
+        long diff = System.currentTimeMillis() - interruptTime;
+        if (diff >= waitingTime) {
+            isWaiting = false;
+            return true;
+        }
+        return false;
     }
 
     private Runnable getExtendedTask() {
         return () -> {
-            long counter = 0;
-            long limit = RANDOM.nextInt(1000000) + 100000000;
-            for (long i = 0; i < limit; i++) {
+            for (; snapshot < limit; snapshot++) {
                 if (Thread.currentThread().isInterrupted()) {
                     return;
                 }
                 if (isWaitAction()) {
-                    int waitOperationTime = RANDOM.nextInt(2000) + 4000;
-                    // TODO: put in wait state
+                    isWaiting = true;
+                    waitingTime = RANDOM.nextInt(2000) + 2000;
+                    interruptTime = System.currentTimeMillis();
+                    stateChanger.putInWaitState(this);
                 }
-
-                counter += RANDOM.nextInt(123) + i;
+                result += snapshot;
             }
-            LOGGER.info("Result: " + counter);
+            LOGGER.info("Result: " + result);
         };
     }
 
-    private static boolean isWaitAction() {
-        int rand = RANDOM.nextInt(1000);
-        return rand > 90;
+    private static boolean isWaitAction() { // With 0,1% probability.
+        int rand = RANDOM.nextInt(1000000);
+        return rand > 999990;
     }
 }

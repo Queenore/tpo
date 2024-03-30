@@ -1,9 +1,10 @@
 package org.tpo.Task;
 
-public class BaseTask extends ExtendedTask {
+public class BaseTask extends Task {
 
     public BaseTask(Priority priority, int id) {
-        super(getBaseTask(), priority, id);
+        super(priority, id);
+        setRunnable(getBaseTask());
     }
 
     public static Runnable getBaseTask() {
