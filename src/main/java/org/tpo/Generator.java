@@ -11,7 +11,7 @@ import java.util.Random;
 
 public class Generator extends Thread {
     private static final Random RANDOM = new Random();
-    private  final Scheduler scheduler;
+    private final Scheduler scheduler;
     private final Queue<Task>[] tasks;
 
     public Generator(Scheduler scheduler, Queue<Task>[] tasks) {

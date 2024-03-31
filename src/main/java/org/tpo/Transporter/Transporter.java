@@ -6,11 +6,15 @@ import java.util.concurrent.BlockingQueue;
 
 abstract class Transporter extends Thread {
     BlockingQueue<Task> producer;
-    BlockingQueue<Task> consumer;
+    TaskTransporter transporter;
 
     public Transporter(BlockingQueue<Task> producer,
-                       BlockingQueue<Task> consumer) {
+                       TaskTransporter transporter) {
         this.producer = producer;
-        this.consumer = consumer;
+        this.transporter = transporter;
+    }
+
+    public interface TaskTransporter {
+        void transport(Task task) throws InterruptedException;
     }
 }

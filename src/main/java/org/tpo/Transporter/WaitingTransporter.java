@@ -5,9 +5,10 @@ import org.tpo.Task.Task;
 
 import java.util.concurrent.BlockingQueue;
 
-public class WaitingTransporter extends Transporter{
-    public WaitingTransporter(BlockingQueue<Task> producer, BlockingQueue<Task> consumer) {
-        super(producer, consumer);
+public class WaitingTransporter extends Transporter {
+
+    public WaitingTransporter(BlockingQueue<Task> producer, TaskTransporter transporter) {
+        super(producer, transporter);
     }
 
     @Override
@@ -18,7 +19,7 @@ public class WaitingTransporter extends Transporter{
                 while (!task.isTaskReady()) {
                     Thread.yield();
                 }
-                consumer.put(task);
+                transporter.transport(task);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }

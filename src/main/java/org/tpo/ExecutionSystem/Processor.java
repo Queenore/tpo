@@ -2,7 +2,7 @@ package org.tpo.ExecutionSystem;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tpo.Stateful.BaseStateChanger;
+import org.tpo.Stateful.StateChanger;
 import org.tpo.Task.Task;
 
 import java.util.concurrent.ExecutorService;
@@ -14,12 +14,12 @@ public class Processor extends Thread {
     private static final Logger LOGGER = LoggerFactory.getLogger(Processor.class);
 
     private final ExecutorService executor;
-    private final BaseStateChanger stateChanger;
+    private final StateChanger stateChanger;
     private final SynchronousQueue<Task> runningQueue;
 
     private TaskInProcess taskInProcess;
 
-    public Processor(SynchronousQueue<Task> runningQueue, BaseStateChanger stateChanger) {
+    public Processor(SynchronousQueue<Task> runningQueue, StateChanger stateChanger) {
         this.executor = Executors.newSingleThreadExecutor();
         this.runningQueue = runningQueue;
         this.stateChanger = stateChanger;
@@ -31,11 +31,8 @@ public class Processor extends Thread {
             try {
                 Task nextTask = runningQueue.take();
                 while (true) {
-                    if (taskInProcess == null || taskInProcess.isCancelled()) {
+                    if (taskInProcess == null || taskInProcess.isCancelled() || taskInProcess.isDone()) {
                         putTask(nextTask);
-                        break;
-                    } else if (taskInProcess.isDone())  {
-                        terminate(nextTask);
                         break;
                     } else if (
                             taskInProcess.getTask().getPriority()
@@ -51,16 +48,7 @@ public class Processor extends Thread {
         }
     }
 
-    public void toWaitState() {
-        taskInProcess.cancel();
-    }
-
-    private void terminate(Task nextTask) {
-        stateChanger.terminate(taskInProcess.getTask());
-        putTask(nextTask);
-    }
-
-    private void preempt(Task task) {
+    private void preempt(Task task) throws InterruptedException {
         LOGGER.info(
                 taskInProcess.getTask().getPriority().name()
                         + " -> "
@@ -70,7 +58,7 @@ public class Processor extends Thread {
         taskInProcess.cancel();
         Task prevTask = taskInProcess.getTask();
         putTask(task);
-        stateChanger.putInReadyState(prevTask);
+        stateChanger.putInReadyStateNonBlocking(prevTask);
     }
 
     private void putTask(Task task) {

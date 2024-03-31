@@ -5,15 +5,17 @@ import org.tpo.Task.Task;
 import java.util.concurrent.BlockingQueue;
 
 public class SimpleTransporter extends Transporter{
-    public SimpleTransporter(BlockingQueue<Task> producer, BlockingQueue<Task> consumer) {
-        super(producer, consumer);
+
+
+    public SimpleTransporter(BlockingQueue<Task> producer, TaskTransporter transporter) {
+        super(producer, transporter);
     }
 
     @Override
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {
             try {
-                consumer.put(producer.take());
+                transporter.transport(producer.take());
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }

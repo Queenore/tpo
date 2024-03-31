@@ -1,9 +1,9 @@
 package org.tpo.Task;
 
-import org.tpo.Stateful.WaitStateChanger;
+import org.tpo.Stateful.Waitable;
 
 public class ExtendedTask extends Task {
-    private final WaitStateChanger stateChanger;
+    private final Waitable waitStateProducer;
     private final long limit = RANDOM.nextInt(1000) + 50000;
     private long result;
     private int index;
@@ -11,10 +11,10 @@ public class ExtendedTask extends Task {
     private long interruptTime;
     private long waitingTime;
 
-    public ExtendedTask(Priority priority, int id, WaitStateChanger stateChanger) {
+    public ExtendedTask(Priority priority, int id, Waitable waitStateProducer) {
         super(priority, id);
         setRunnable(getExtendedTask());
-        this.stateChanger = stateChanger;
+        this.waitStateProducer = waitStateProducer;
     }
 
     public boolean isTaskReady() {
@@ -33,22 +33,35 @@ public class ExtendedTask extends Task {
     private Runnable getExtendedTask() {
         return () -> {
             LOGGER.info("Continue: " + index);
+
             while(index < limit) {
+
                 if (Thread.currentThread().isInterrupted()) {
                     return;
                 }
+
                 if (isWaitAction()) {
                     LOGGER.info("Waiting: " + index);
+
+                    // Set characteristics for wait state.
                     isWaiting = true;
                     waitingTime = getWaitingTime();
                     interruptTime = System.currentTimeMillis();
-                    stateChanger.putInWaitState(this);
+
+                    try {
+                        waitStateProducer.putInWaitState(this);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+
                     return;
                 }
+
                 result += index;
                 index++;
             }
-            LOGGER.info("Result: " + result);
+
+            LOGGER.info("Task done with result=" + result + ", id=" + getId());
         };
     }
 
