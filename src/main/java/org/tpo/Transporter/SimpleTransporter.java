@@ -6,7 +6,6 @@ import java.util.concurrent.BlockingQueue;
 
 public class SimpleTransporter extends Transporter{
 
-
     public SimpleTransporter(BlockingQueue<Task> producer, TaskTransporter transporter) {
         super(producer, transporter);
     }

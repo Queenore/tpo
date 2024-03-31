@@ -41,7 +41,9 @@ public class Processor extends Thread {
                         preempt(nextTask);
                         break;
                     }
+                    Thread.yield();
                 }
+                Thread.yield();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }

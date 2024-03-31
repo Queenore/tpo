@@ -11,6 +11,9 @@ import java.util.Random;
 
 public class Generator extends Thread {
     private static final Random RANDOM = new Random();
+
+    private static final int SLEEP_TIME_DURING_GENERATION = 50;
+
     private final Scheduler scheduler;
     private final Queue<Task>[] tasks;
 
@@ -33,7 +36,7 @@ public class Generator extends Thread {
             tasks[priorityIndex].add(newTask);
 
             try {
-                Thread.sleep(500);
+                Thread.sleep(SLEEP_TIME_DURING_GENERATION);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }

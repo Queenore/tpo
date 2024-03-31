@@ -12,10 +12,10 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 
 public class TaskQueuesManager implements StateChanger {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TaskQueuesManager.class);
-    private static final int READY_QUEUE_CAPACITY = 10;
-    private static final int MAX_QUEUE_CAPACITY = 1 << 6;
+    private static final int READY_QUEUE_CAPACITY = 100;
+    private static final int MAX_QUEUE_CAPACITY = 1 << 10;
 
+    // Where are two ways to add element in readyQueue: blocking or non-blocking.
     private final BlockingQueue<Task> readyQueue = new ArrayBlockingQueue<>(MAX_QUEUE_CAPACITY);
     private final BlockingQueue<Task> waitingQueue = new ArrayBlockingQueue<>(MAX_QUEUE_CAPACITY);
     private final BlockingQueue<Task> suspendedQueue = new ArrayBlockingQueue<>(MAX_QUEUE_CAPACITY);
@@ -42,7 +42,6 @@ public class TaskQueuesManager implements StateChanger {
 
     @Override
     public synchronized void putInReadyStateBlocking(Task task) throws InterruptedException {
-        LOGGER.info(" SIZE = " + readyQueue.size());
         while (readyQueue.size() >= READY_QUEUE_CAPACITY) {
             Thread.yield();
         }
@@ -50,7 +49,7 @@ public class TaskQueuesManager implements StateChanger {
     }
 
     @Override
-    public synchronized void putInReadyStateNonBlocking(Task task) throws InterruptedException {
+    public void putInReadyStateNonBlocking(Task task) throws InterruptedException {
         readyQueue.put(task);
     }
 
