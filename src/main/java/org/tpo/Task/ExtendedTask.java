@@ -6,6 +6,7 @@ public class ExtendedTask extends Task {
     private final Waitable waitStateProducer;
     private final long limit = RANDOM.nextInt(1000) + 50000;
     private long result;
+    private volatile boolean isReady;
     private int index;
     private boolean isWaiting = false;
     private long interruptTime;
@@ -14,6 +15,12 @@ public class ExtendedTask extends Task {
     public ExtendedTask(Priority priority, int id, Waitable waitStateProducer) {
         super(priority, id);
         setRunnable(getExtendedTask());
+        this.waitStateProducer = waitStateProducer;
+    }
+
+    public ExtendedTask(Runnable runnable, Priority priority, int id, Waitable waitStateProducer) {
+        super(priority, id);
+        setRunnable(runnable);
         this.waitStateProducer = waitStateProducer;
     }
 
@@ -30,6 +37,12 @@ public class ExtendedTask extends Task {
         return false;
     }
 
+    public void setWaitState() {
+        isWaiting = true;
+        waitingTime = getWaitingTime();
+        interruptTime = System.currentTimeMillis();
+    }
+
     private Runnable getExtendedTask() {
         return () -> {
             LOGGER.info("Continue: " + index);
@@ -44,9 +57,7 @@ public class ExtendedTask extends Task {
                     LOGGER.info("Waiting: " + index);
 
                     // Set characteristics for wait state.
-                    isWaiting = true;
-                    waitingTime = getWaitingTime();
-                    interruptTime = System.currentTimeMillis();
+                    setWaitState();
 
                     try {
                         waitStateProducer.putInWaitState(this);
@@ -60,7 +71,7 @@ public class ExtendedTask extends Task {
                 result += index;
                 index++;
             }
-
+            isReady = true;
             LOGGER.info("Task done with result=" + result + ", id=" + getId());
         };
     }
@@ -71,7 +82,11 @@ public class ExtendedTask extends Task {
     }
 
     private static int getWaitingTime() {
-        // From 2000 to 4000 millis.
-        return RANDOM.nextInt(2000) + 2000;
+        // From 3000 to 6000 millis.
+        return RANDOM.nextInt(3000) + 3000;
+    }
+
+    public boolean isReady() {
+        return isReady;
     }
 }
