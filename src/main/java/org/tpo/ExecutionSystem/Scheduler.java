@@ -21,8 +21,10 @@ public class Scheduler extends TaskQueuesManager {
         if (tasks==null) {
             throw new IllegalStateException();
         }
+
         while (!Thread.currentThread().isInterrupted()) {
             Task currTask = null;
+
             while (currTask == null) {
                 for (int i = 0; i < 4; i++) {
                     currTask = tasks[i].peek();
@@ -37,6 +39,8 @@ public class Scheduler extends TaskQueuesManager {
                     }
                 }
             }
+
+            Thread.yield();
         }
     }
 }

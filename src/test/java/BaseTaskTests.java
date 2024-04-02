@@ -10,13 +10,13 @@ public class BaseTaskTests {
     @Test
     public void testBaseTaskExecution() {
         BaseTask task = new BaseTask(Priority.TWO, 1);
-        Thread thread = new Thread(task.getBaseTask());
+        Thread thread = new Thread(task::getBaseTask);
 
         thread.start();
         try {
             thread.join();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Thread.currentThread().interrupt();
         }
 
         assertFalse(thread.isAlive());
@@ -25,7 +25,7 @@ public class BaseTaskTests {
     @Test
     public void testInterruptBaseTask() throws InterruptedException {
         BaseTask task = new BaseTask(Priority.TWO, 1);
-        Thread thread = new Thread(task.getBaseTask());
+        Thread thread = new Thread(task::getBaseTask);
 
         thread.start();
         thread.interrupt();

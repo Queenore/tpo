@@ -14,9 +14,11 @@ public class Main {
         }
 
         Scheduler scheduler = new Scheduler();
-        Generator generator = new Generator(scheduler, tasks);
-        generator.start();
         scheduler.setTasks(tasks);
+
+        Generator generator = new Generator(scheduler, tasks);
+
+        generator.start();
         scheduler.start();
     }
 }
