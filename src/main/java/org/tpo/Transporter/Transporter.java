@@ -4,7 +4,7 @@ import org.tpo.Task.Task;
 
 import java.util.concurrent.BlockingQueue;
 
-abstract class Transporter extends Thread {
+public abstract class Transporter extends Thread {
     BlockingQueue<Task> producer;
     TaskTransporter transporter;
 

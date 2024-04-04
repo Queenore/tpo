@@ -1,7 +1,5 @@
 package org.tpo.ExecutionSystem;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.tpo.Stateful.StateChanger;
 import org.tpo.Task.Task;
 import org.tpo.Transporter.SimpleTransporter;
@@ -11,7 +9,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 
-public class TaskQueuesManager implements StateChanger {
+public class TaskQueuesManager extends Thread implements StateChanger  {
     private static final int READY_QUEUE_CAPACITY = 100;
     private static final int MAX_QUEUE_CAPACITY = 1 << 10;
 
@@ -29,6 +27,18 @@ public class TaskQueuesManager implements StateChanger {
 
     public SynchronousQueue<Task> getRunningQueue() {
         return runningQueue;
+    }
+
+    public BlockingQueue<Task> getReadyQueue() {
+        return readyQueue;
+    }
+
+    public BlockingQueue<Task> getWaitingQueue() {
+        return waitingQueue;
+    }
+
+    public BlockingQueue<Task> getSuspendedQueue() {
+        return suspendedQueue;
     }
 
     public void put(Task task) throws InterruptedException {

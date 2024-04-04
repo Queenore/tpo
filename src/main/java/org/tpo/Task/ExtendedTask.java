@@ -2,6 +2,8 @@ package org.tpo.Task;
 
 import org.tpo.Stateful.Waitable;
 
+import java.util.concurrent.Callable;
+
 public class ExtendedTask extends Task {
     private final Waitable waitStateProducer;
     private final long limit = RANDOM.nextInt(1000) + 50000;
@@ -13,7 +15,13 @@ public class ExtendedTask extends Task {
 
     public ExtendedTask(Priority priority, int id, Waitable waitStateProducer) {
         super(priority, id);
-        setRunnable(getExtendedTask());
+        setCallable(getExtendedTask());
+        this.waitStateProducer = waitStateProducer;
+    }
+
+    public ExtendedTask(Callable<Long> callable, Priority priority, int id, Waitable waitStateProducer) {
+        super(priority, id);
+        setCallable(callable);
         this.waitStateProducer = waitStateProducer;
     }
 
@@ -30,31 +38,25 @@ public class ExtendedTask extends Task {
         return false;
     }
 
-    private Runnable getExtendedTask() {
+    private Callable<Long> getExtendedTask() {
         return () -> {
             LOGGER.info("Continue: " + index);
 
-            while(index < limit) {
+            while (index < limit) {
 
                 if (Thread.currentThread().isInterrupted()) {
-                    return;
+                    throw new InterruptedException();
                 }
 
                 if (isWaitAction()) {
                     LOGGER.info("Waiting: " + index);
 
                     // Set characteristics for wait state.
-                    isWaiting = true;
-                    waitingTime = getWaitingTime();
-                    interruptTime = System.currentTimeMillis();
+                    setWaitState();
 
-                    try {
-                        waitStateProducer.putInWaitState(this);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
+                    waitStateProducer.putInWaitState(this);
 
-                    return;
+                    throw new InterruptedException();
                 }
 
                 result += index;
@@ -62,16 +64,24 @@ public class ExtendedTask extends Task {
             }
 
             LOGGER.info("Task done with result=" + result + ", id=" + getId());
+
+            return result;
         };
     }
 
-    private static boolean isWaitAction() { // With 0,1% probability.
+    public void setWaitState() {
+        isWaiting = true;
+        waitingTime = getWaitingTime();
+        interruptTime = System.currentTimeMillis();
+    }
+
+    private static boolean isWaitAction() { // With 0,0001% probability.
         int rand = RANDOM.nextInt(1000000);
         return rand > 999990;
     }
 
     private static int getWaitingTime() {
-        // From 2000 to 4000 millis.
-        return RANDOM.nextInt(2000) + 2000;
+        // From 3000 to 6000 millis.
+        return RANDOM.nextInt(3000) + 3000;
     }
 }

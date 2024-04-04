@@ -12,7 +12,7 @@ import java.util.Random;
 public class Generator extends Thread {
     private static final Random RANDOM = new Random();
 
-    private static final int SLEEP_TIME_DURING_GENERATION = 50;
+    private static final int SLEEP_TIME_DURING_GENERATION = 150;
 
     private final Scheduler scheduler;
     private final Queue<Task>[] tasks;
@@ -29,9 +29,9 @@ public class Generator extends Thread {
             int priorityIndex = RANDOM.nextInt(4);
             Priority priority = Priority.values()[priorityIndex];
 
-            Task newTask = RANDOM.nextInt(2) > 0
-                    ? new BaseTask(priority, id++)
-                    : new ExtendedTask(priority, id++, scheduler);
+            Task newTask = RANDOM.nextInt(10) > 2
+                    ? new BaseTask(priority, id++) // 70%
+                    : new ExtendedTask(priority, id++, scheduler); // 30%
 
             tasks[priorityIndex].add(newTask);
 

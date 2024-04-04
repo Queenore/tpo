@@ -59,6 +59,7 @@ public class Processor extends Thread {
 
         taskInProcess.cancel();
         Task prevTask = taskInProcess.getTask();
+
         putTask(task);
         stateChanger.putInReadyStateNonBlocking(prevTask);
     }
