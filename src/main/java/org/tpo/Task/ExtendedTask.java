@@ -38,12 +38,6 @@ public class ExtendedTask extends Task {
         return false;
     }
 
-    public void setWaitState() {
-        isWaiting = true;
-        waitingTime = getWaitingTime();
-        interruptTime = System.currentTimeMillis();
-    }
-
     private Callable<Long> getExtendedTask() {
         return () -> {
             LOGGER.info("Continue: " + index);
@@ -75,7 +69,13 @@ public class ExtendedTask extends Task {
         };
     }
 
-    private static boolean isWaitAction() { // With 0,1% probability.
+    public void setWaitState() {
+        isWaiting = true;
+        waitingTime = getWaitingTime();
+        interruptTime = System.currentTimeMillis();
+    }
+
+    private static boolean isWaitAction() { // With 0,0001% probability.
         int rand = RANDOM.nextInt(1000000);
         return rand > 999990;
     }

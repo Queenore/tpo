@@ -28,12 +28,15 @@ public class TaskQueuesManager extends Thread implements StateChanger  {
     public SynchronousQueue<Task> getRunningQueue() {
         return runningQueue;
     }
+
     public BlockingQueue<Task> getReadyQueue() {
         return readyQueue;
     }
+
     public BlockingQueue<Task> getWaitingQueue() {
         return waitingQueue;
     }
+
     public BlockingQueue<Task> getSuspendedQueue() {
         return suspendedQueue;
     }
