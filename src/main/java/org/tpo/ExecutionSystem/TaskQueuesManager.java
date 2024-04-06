@@ -7,26 +7,20 @@ import org.tpo.Transporter.WaitingTransporter;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 
 public class TaskQueuesManager extends Thread implements StateChanger  {
     private static final int READY_QUEUE_CAPACITY = 100;
     private static final int MAX_QUEUE_CAPACITY = 1 << 10;
 
     // Where are two ways to add element in readyQueue: blocking or non-blocking.
-    private final BlockingQueue<Task> readyQueue = new ArrayBlockingQueue<>(MAX_QUEUE_CAPACITY);
+    private final BlockingQueue<Task> readyQueue = new PriorityBlockingQueue<>(MAX_QUEUE_CAPACITY);
     private final BlockingQueue<Task> waitingQueue = new ArrayBlockingQueue<>(MAX_QUEUE_CAPACITY);
     private final BlockingQueue<Task> suspendedQueue = new ArrayBlockingQueue<>(MAX_QUEUE_CAPACITY);
-    private final SynchronousQueue<Task> runningQueue = new SynchronousQueue<>();
 
     public TaskQueuesManager() {
-        new SimpleTransporter(readyQueue, this::putInRunningState).start();
         new SimpleTransporter(suspendedQueue, this::putInReadyStateBlocking).start();
         new WaitingTransporter(waitingQueue, this::putInReadyStateNonBlocking).start();
-    }
-
-    public SynchronousQueue<Task> getRunningQueue() {
-        return runningQueue;
     }
 
     public BlockingQueue<Task> getReadyQueue() {
@@ -61,10 +55,5 @@ public class TaskQueuesManager extends Thread implements StateChanger  {
     @Override
     public void putInReadyStateNonBlocking(Task task) throws InterruptedException {
         readyQueue.put(task);
-    }
-
-    @Override
-    public void putInRunningState(Task task) throws InterruptedException {
-        runningQueue.put(task);
     }
 }

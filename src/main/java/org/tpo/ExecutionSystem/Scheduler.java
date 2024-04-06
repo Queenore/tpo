@@ -9,7 +9,7 @@ public class Scheduler extends TaskQueuesManager {
     private Queue<Task>[] tasks;
 
     public Scheduler() {
-        new Processor(getRunningQueue(), this).start();
+        new Processor(getReadyQueue(), this).start();
     }
 
     public void setTasks(Queue<Task>[] tasks){

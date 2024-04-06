@@ -5,23 +5,23 @@ import org.slf4j.LoggerFactory;
 import org.tpo.Stateful.StateChanger;
 import org.tpo.Task.Task;
 
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.SynchronousQueue;
 
 public class Processor extends Thread {
     private static final Logger LOGGER = LoggerFactory.getLogger(Processor.class);
 
     private final ExecutorService executor;
     private final StateChanger stateChanger;
-    private final SynchronousQueue<Task> runningQueue;
+    private final BlockingQueue<Task> readyQueue;
 
     private TaskInProcess taskInProcess;
 
-    public Processor(SynchronousQueue<Task> runningQueue, StateChanger stateChanger) {
+    public Processor(BlockingQueue<Task> readyQueue, StateChanger stateChanger) {
         this.executor = Executors.newSingleThreadExecutor();
-        this.runningQueue = runningQueue;
+        this.readyQueue = readyQueue;
         this.stateChanger = stateChanger;
     }
 
@@ -29,7 +29,7 @@ public class Processor extends Thread {
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {
             try {
-                Task nextTask = runningQueue.take();
+                Task nextTask = readyQueue.take();
                 while (true) {
                     if (taskInProcess == null || taskInProcess.isCancelled() || taskInProcess.isDone()) {
                         putTask(nextTask);

@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Random;
 import java.util.concurrent.Callable;
 
-public abstract class Task implements Callable<Long> {
+public abstract class Task implements Callable<Long>, Comparable<Task> {
     static final Logger LOGGER = LoggerFactory.getLogger(Task.class);
     static final Random RANDOM = new Random();
 
@@ -47,5 +47,10 @@ public abstract class Task implements Callable<Long> {
         Long result = callable.call();
         isCompleted = true;
         return result;
+    }
+
+    @Override
+    public int compareTo(Task o) {
+        return priority.compareTo(o.getPriority());
     }
 }
